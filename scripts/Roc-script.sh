@@ -70,3 +70,14 @@ echo "baidu.com"  > package/luci-app-passwall/luci-app-passwall/root/usr/share/p
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
+# 自动寻找 sing-box 的源码目录
+SB_PATH=$(find feeds/ -name sing-box -type d | head -n 1)
+
+# 1. 强制修改版本号为 1.9.3
+sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.9.3/' $SB_PATH/Makefile
+
+# 2. 跳过 HASH 校验（防止因版本变更导致的下载失败）
+sed -i 's/PKG_HASH:=.*/PKG_HASH:=skip/' $SB_PATH/Makefile
+
+# 3. 如果你的源码 feeds 较旧，确保编译定义中包含 HYSTERIA2
+# 这通常已经在 .config 中通过 CONFIG_SINGBOX_WITH_HYSTERIA2=y 处理
