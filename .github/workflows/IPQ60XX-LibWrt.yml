@@ -98,6 +98,44 @@ jobs:
         cd $OPENWRT_PATH
         ./scripts/feeds update -a
         ./scripts/feeds install -a
+    - name: Downgrade Sing-Box Version(降级SB版本)
+      run: |
+        cd $OPENWRT_PATH
+        SB_MAKEFILE=$(find feeds/packages -name "sing-box" -type d)/Makefile
+        if [ -f "$SB_MAKEFILE" ]; then
+          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.10.15/' "$SB_MAKEFILE"
+          sed -i 's/PKG_HASH:=.*/PKG_HASH:=54394014902377b078508499298e3b23e8036224424355598686e08920138980/' "$SB_MAKEFILE"
+          echo "Sing-Box 降级完成: 1.10.15"
+        fi
+
+    - name: NSS Memory Optimization(NSS内存优化)
+      run: |
+        cd $OPENWRT_PATH
+        # 将 q6_region 从默认大小修改为 16MB (针对 256MB 无无线设备)
+        sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x01000000>/' target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+        echo "DTS 物理内存优化完成"
+
+    - name: Load Custom Configuration(加载自定义配置)
+      run: |
+        cd $OPENWRT_PATH
+        # 合并配置文件，并确保文件末尾有换行符防止 missing separator 错误
+        [ -e $CONFIG_FILE ] && cat $CONFIG_FILE > .config
+        echo "" >> .config
+        [ -e $GENERAL_CONFIG_FILE ] && cat $GENERAL_CONFIG_FILE >> .config
+        make defconfig
+
+    - name: Download DL Package(下载软件包)
+      run: |
+        cd $OPENWRT_PATH
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile OpenWrt(开始编译)
+      run: |
+        cd $OPENWRT_PATH
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 V=s
   
     - name: Load Custom Configuration(加载自定义配置)
       run: |
