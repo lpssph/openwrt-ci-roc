@@ -23,6 +23,21 @@ sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x00
 # 调节IPQ60XX的1.5GHz频率电压(从0.9375V提高到0.95V，过低可能导致不稳定，过高可能增加功耗和发热，具体数值需要根据实际情况调整)
 # sed -i 's/opp-microvolt = <937500>;/opp-microvolt = <950000>;/' target/linux/qualcommax/patches-6.12/0038-v6.16-arm64-dts-qcom-ipq6018-add-1.5GHz-CPU-Frequency.patch
 
+# 高通平台专项调整
+DTS_PATH="./target/linux/qualcommax/dts/"
+if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
+    # 取消nss相关feed
+    echo "CONFIG_FEED_nss_packages=n" >> .config
+    echo "CONFIG_FEED_sqm_scripts_nss=n" >> .config
+    
+    # 设置NSS版本 (12.5)
+    echo "CONFIG_NSS_FIRMWARE_VERSION_11_4=n" >> .config
+    if [[ "${WRT_CONFIG,,}" == *"ipq50"* ]]; then
+        echo "CONFIG_NSS_FIRMWARE_VERSION_12_2=y" >> .config
+    else
+        echo "CONFIG_NSS_FIRMWARE_VERSION_12_5=y" >> .config
+    fi
+
 # 移除要替换的包
 
 rm -rf feeds/luci/applications/luci-app-appfilter
