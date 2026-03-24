@@ -24,15 +24,12 @@ sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x01
 # sed -i 's/opp-microvolt = <937500>;/opp-microvolt = <950000>;/' target/linux/qualcommax/patches-6.12/0038-v6.16-arm64-dts-qcom-ipq6018-add-1.5GHz-CPU-Frequency.patch
 
 # 移除要替换的包
-rm -rf feeds/luci/applications/luci-app-argon-config
-rm -rf feeds/luci/applications/luci-app-wechatpush
+
 rm -rf feeds/luci/applications/luci-app-appfilter
-rm -rf feeds/luci/applications/luci-app-frpc
-rm -rf feeds/luci/applications/luci-app-frps
-rm -rf feeds/luci/themes/luci-theme-argon
+
 rm -rf feeds/packages/net/open-app-filter
 rm -rf feeds/packages/net/ariang
-rm -rf feeds/packages/net/frp
+
 rm -rf feeds/packages/lang/golang
 
 # Git稀疏克隆，只克隆指定目录到本地
